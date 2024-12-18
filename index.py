@@ -13,7 +13,7 @@ def buscar_per_nom(hotels: list, nom_a_buscar: str) -> list:
     return [hotel for hotel in hotels if nom_a_buscar.lower() in hotel.nom.lower()]
 
 def buscar_per_estrelles(hotels: list, estrelles: int) -> list:
-    return filter(lambda x: x.estrelles == estrelles, hotels)
+    return list(filter(lambda x: x.estrelles == estrelles, hotels))
 
 def buscar_hotels(hotels: list):
     opc = input("Introdueix criteri de cerca (1 - per nom, 2 - per estrelles): ")
@@ -45,13 +45,19 @@ def buscar_hotels(hotels: list):
         print("Error: criteri de cerca no vàlid")
 
 def hotel_mes_proper(hotels, latitud, longitud):
-    return min(hotels, key=lambda hotel: hotel.distancia(latitud, longitud))
+    if hotels != []:
+        hotel =  min(hotels, key=lambda hotel: hotel.distancia(latitud, longitud))
+        return hotel, hotel.distancia(lat, long)
+    else:
+        return None
 
 def mostrar_menu():
     MENU_STRING = """
 --- Menú Principal --- 
 1 - Veure hotels
 2 - Veure hotels per estrelles
+3 - Buscar hotels
+4 - Buscar hotel proper
 S - Sortir del programa
     """
     print(MENU_STRING)
@@ -74,10 +80,19 @@ else:
         
         if opcio == '1':
             mostrar_hotels(hotels)
+        elif opcio == '2':
+            mostrar_hotels(ordenar_per_estrelles(hotels))
         elif opcio == '3':
-            lat = float(input("latitud: "))
-            long = float(input("long: "))
-            print(hotel_mes_proper(hotels, lat, long))
+            buscar_hotels(hotels)
+        elif opcio == '4':
+            try:
+                lat = float(input("Escriu la teva latitud: "))
+                long = float(input("Escriu la teva longitud: "))
+            except ValueError:
+                print("Error: latitud i longitud han de ser valors reals")
+            else:
+                hotel, distancia = hotel_mes_proper(hotels, lat, long)
+                print(f"L'hotel més proper és el {hotel.nom} a {distancia} kms")
         elif opcio == 'S' or opcio == 's':
             print("Sortint del programa")
         else:
