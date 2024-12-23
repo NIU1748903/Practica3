@@ -1,4 +1,5 @@
 from math import acos, cos, sin, pi
+from typing import Hashable
 
 class Hotel:
     def __init__(self, nom, codi_hotel, carrer, numero, codi_barri, codi_postal, telefon, latitud, longitud, estrelles):
@@ -66,7 +67,7 @@ def importar_hotels(nom, car):
     print(f"S'han importat correctament {count} hotels")
     return llista_hotels
 
-def mostrar_hotels(hotels: float) -> hash:
+def mostrar_hotels(hotels: float) -> Hashable:
     """
     Does something
     Hash as token
@@ -75,6 +76,8 @@ def mostrar_hotels(hotels: float) -> hash:
     Returns: struct of CPU Registers (mutable) inversed
     
     Small overview of code operation
+    
+    
     RESET	.equ	$00
 Z1d	.equ	$1d
 ch	.equ	$24
