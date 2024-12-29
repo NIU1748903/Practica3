@@ -67,7 +67,7 @@ def estrelles_per_barri(hotels: list[Hotel], barris: dict[int, Barri]):
     return res
 
 # Caos
-def densitat_per_districte(hotels: list[Hotel], barris: dict[int, Barri], districtes: dict[int, Districte]):
+def densitat_per_districte_xavi(hotels: list[Hotel], barris: dict[int, Barri], districtes: dict[int, Districte]):
     res = {}
     for c_districte, v_districte in districtes.items():
         suma = 0
@@ -78,14 +78,43 @@ def densitat_per_districte(hotels: list[Hotel], barris: dict[int, Barri], distri
         res[c_districte] = suma / v_districte.extensio
     return res
 
+def densitat_per_districte(hotels: list, barris: dict, districtes: dict) -> dict:
+    num_hotels = dict()
+    for barri, codi_barri in zip(barris.values(), barris.keys()):
+        codi_districte = barri.codi_districte
+        hotels_barri = [hotel for hotel in hotels if hotel.codi_barri == codi_barri]
+        if codi_districte in num_hotels:
+            num_hotels[codi_districte] += len(hotels_barri)
+        else:
+            num_hotels[codi_districte] = len(hotels_barri)
+
+    def transformar_densitat(info):
+        clau_districte, num_hotels = info
+        return (clau_districte, num_hotels / districtes[clau_districte].extensio)
+
+    densitats = dict(map(transformar_densitat, num_hotels.items()))
+    return densitats
+
+def afegir_prefixe_int(hotel: Hotel):
+    if hotel.telefon[0] != '+':
+        hotel.telefon = '+34' + hotel.telefon
+
+def modificar_telefons(hotels: list):
+    hotels = list(map(afegir_prefixe_int, hotels))
+
 def mostrar_menu():
     MENU_STRING = """
---- Menú Principal --- 
+--- MENÚ PRINCIPAL ---
 1 - Veure hotels
 2 - Veure hotels per estrelles
 3 - Buscar hotels
 4 - Buscar hotel proper
-S - Sortir del programa
+5 - Llistat alfabètic d'hotels
+6 - Carrers amb hotels
+7 - Estadística per barris
+8 - Estadística per districtes
+9 - Internacionalitzar telèfons
+S - Sortir del programa 
     """
     print(MENU_STRING)
 
@@ -106,8 +135,7 @@ else:
         opcio = input("Introdueix una opcio: ")
         
         if opcio == '1':
-            #mostrar_hotels()
-            print(densitat_per_districte(hotels, barris, districtes))
+            mostrar_hotels(hotels)
         elif opcio == '2':
             mostrar_hotels(ordenar_per_estrelles(hotels))
         elif opcio == '3':
@@ -121,10 +149,28 @@ else:
             else:
                 hotel, distancia = hotel_mes_proper(hotels, lat, long)
                 print(f"L'hotel més proper és el {hotel.nom} a {distancia} kms")
+        elif opcio == '5':
+            llista = ordenar_per_nom(hotels)
+            mostrar_hotels(llista)
+        elif opcio == '6':
+            carrers = carrers_amb_hotels(hotels)
+            print(f'Hi ha {len(carrers)} carrers amb algun hotel: {carrers}')
+        elif opcio == '7':
+            info = estrelles_per_barri(hotels, barris)
+            for nom_barri, info_estrelles in info.items():
+                print(nom_barri)
+                for i in range(len(info_estrelles)):
+                    print(f"Hi ha {info_estrelles[i]} hotels de {i+1} estrelles")
+                print('')
+        elif opcio == '8':
+            densitats = densitat_per_districte(hotels, barris, districtes)
+            for codi, densitat in densitats.items():
+                print(f"Districte {codi}: {densitat} hotels/km2")
+        elif opcio == '9':
+            modificar_telefons(hotels)
         elif opcio == 'S' or opcio == 's':
             print("Sortint del programa")
         else:
             print("Opcio no permesa")
 finally:
     print("© Xavier Martín i Víctor Fernández")
-    
