@@ -58,41 +58,26 @@ def carrers_amb_hotels(hotels: list[Hotel]):
     return list({h.carrer for h in hotels})
 
 def estrelles_per_barri(hotels: list[Hotel], barris: dict[int, Barri]):
-    res = {}
+    estrelles_barri = {}
     for c_barri, v_barri in barris.items():
         list_estrelles = [0, 0, 0, 0, 0]
         for hotel_in_barri in filter(lambda x: x.codi_barri == c_barri, hotels):
             list_estrelles[hotel_in_barri.estrelles - 1] += 1
-        res[v_barri.nom] = list_estrelles
-    return res
-
-# Caos
-def densitat_per_districte_xavi(hotels: list[Hotel], barris: dict[int, Barri], districtes: dict[int, Districte]):
-    res = {}
-    for c_districte, v_districte in districtes.items():
-        suma = 0
-        for K in filter(lambda x: x[1].codi_districte == c_districte, barris.items()):
-            barri, _ = K
-            for hotel in filter(lambda x: x.codi_barri == barri, hotels):
-                suma += 1
-        res[c_districte] = suma / v_districte.extensio
-    return res
+        estrelles_barri[v_barri.nom] = list_estrelles
+    return estrelles_barri
 
 def densitat_per_districte(hotels: list, barris: dict, districtes: dict) -> dict:
-    num_hotels = dict()
-    for barri, codi_barri in zip(barris.values(), barris.keys()):
-        codi_districte = barri.codi_districte
+    hotels_dic = dict()
+    for codi_barri, barri in barris.items():
+        districte = barri.codi_districte
         hotels_barri = [hotel for hotel in hotels if hotel.codi_barri == codi_barri]
-        if codi_districte in num_hotels:
-            num_hotels[codi_districte] += len(hotels_barri)
-        else:
-            num_hotels[codi_districte] = len(hotels_barri)
+        hotels_dic[districte] = hotels_dic.get(districte, 0) + len(hotels_barri)
 
     def transformar_densitat(info):
         clau_districte, num_hotels = info
         return (clau_districte, num_hotels / districtes[clau_districte].extensio)
 
-    densitats = dict(map(transformar_densitat, num_hotels.items()))
+    densitats = dict(map(transformar_densitat, hotels_dic.items()))
     return densitats
 
 def afegir_prefixe_int(hotel: Hotel):
@@ -161,7 +146,7 @@ else:
                 print(nom_barri)
                 for i in range(len(info_estrelles)):
                     print(f"Hi ha {info_estrelles[i]} hotels de {i+1} estrelles")
-                print('')
+                print()
         elif opcio == '8':
             densitats = densitat_per_districte(hotels, barris, districtes)
             for codi, densitat in densitats.items():
@@ -169,7 +154,7 @@ else:
         elif opcio == '9':
             modificar_telefons(hotels)
         elif opcio == 'S' or opcio == 's':
-            print("Sortint del programa")
+            print("Sortint del programa...")
         else:
             print("Opcio no permesa")
 finally:
